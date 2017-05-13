@@ -1,0 +1,11 @@
+postgres:
+  image: postgres:9.6.2-alpine
+  env_file: ./postgres.envfile
+  ports:
+  - 5432:5432
+
+morokei-api:
+  image: sonaak/vokun:latest
+  env_file: ./postgres.envfile
+  ports:
+  - 9000:9000

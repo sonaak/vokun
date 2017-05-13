@@ -1,0 +1,47 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.h2database:h2:1.4.191'
+        classpath 'postgresql:postgresql:9.1-901-1.jdbc4'
+    }
+}
+
+plugins {
+    id "org.flywaydb.flyway" version "4.0.3"
+}
+
+/**
+ * Build the image that builds the vokun binary.
+ */
+task buildImage(type:Exec) {
+    workingDir '.'
+    commandLine "docker", "build",
+            "--rm",
+            "-f", "build/Dockerfile",
+            "--build-arg", "VERSION=${version}",
+            "-t", "sonaak/vokun-build:${version}", "."
+}
+
+/**
+ * Builds the vokun binary with the appropriate version.
+ */
+task binary(type:Exec, dependsOn:[buildImage]) {
+    workingDir '.'
+    commandLine "docker", "run", "-v", "${workingDir}/build:/go/out",
+            "sonaak/vokun-build:${version}"
+}
+
+/**
+ *
+ */
+task image(type:Exec, dependsOn:[binary]) {
+    workingDir '.'
+    commandLine "docker", "build",
+            "--rm",
+            "--build-arg", "VERSION=${version}",
+            "-t", "sonaak/vokun:${version}",
+            "."
+}
