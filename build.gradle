@@ -80,3 +80,54 @@ task image {
         }
     }
 }
+
+/**
+ * Starts up a local postgres database and expose the ports
+ */
+task stopPg {
+    doLast {
+        exec {
+            workingDir "."
+            commandLine "docker", "stop", "vokun_postgres"
+        }
+        exec {
+            workingDir "."
+            commandLine "docker", "rm", "vokun_postgres"
+        }
+    }
+
+}
+task postgres {
+    doLast {
+        exec {
+            workingDir "."
+            commandLine "docker", "run",
+                    "--env-file", "./postgres.envfile",
+                    "-p5432:5432",
+                    "--name", "vokun_postgres",
+                    "-d",
+                    "postgres:9.6.2-alpine"
+        }
+    }
+}
+
+
+flyway {
+    url = "${db_url}"
+    schemas = ["models"]
+    table = "schema_history"
+    user = "vokun_admin"
+    password = "${db_password}"
+    driver = "org.postgresql.Driver"
+    locations = ["filesystem:migrations"]
+    placeholders = [
+        "reader_password": "${db_reader_password}".toString(),
+        "writer_password": "${db_writer_password}".toString()
+    ]
+}
+
+flywayMigrate.dependsOn = ["postgres"]
+flywayMigrate.doFirst {
+    logger.info("Waiting 10s for db to start...")
+    sleep(10000)
+}

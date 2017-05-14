@@ -1,9 +1,3 @@
-postgres:
-  image: postgres:9.6.2-alpine
-  env_file: ./postgres.envfile
-  ports:
-  - 5432:5432
-
 vokun:
   image: sonaak/vokun:latest
   env_file: ./postgres.envfile

@@ -1,7 +1,7 @@
 # The database configuration for local development.
 # No useful passwords. Seriously.
 
-POSTGRES_USER=morokei_admin
+POSTGRES_USER=vokun_admin
 POSTGRES_PASSWORD=^V0kuN_4dM!N$
 POSTGRES_DB=vokun
 
