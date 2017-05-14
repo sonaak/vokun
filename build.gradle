@@ -14,31 +14,52 @@ plugins {
 }
 
 /**
- * Build the image that builds the vokun binary.
- */
-task buildImage(type:Exec) {
-    workingDir '.'
-    commandLine "docker", "build",
-            "--rm",
-            "-f", "build/Dockerfile",
-            "--build-arg", "VERSION=${version}",
-            "-t", "sonaak/vokun-build:${version}", "."
-}
-
-/**
  * Builds the vokun binary with the appropriate version.
  */
-task binary(type:Exec, dependsOn:[buildImage]) {
-    workingDir '.'
-    commandLine "docker", "run", "-v", "${workingDir}/build:/go/out",
-            "sonaak/vokun-build:${version}"
+task binary {
+    FileTree inputFiles = fileTree(dir:".")
+
+    // include any go and manifest files
+    inputFiles.include("main.go")
+    inputFiles.include("**/*.go")
+    inputFiles.include("vendor/manifest")
+
+    // include any change to the build logic
+    inputFiles.include("build/Dockerfile")
+    inputFiles.include("build/entrypoint.sh")
+
+    // exclude any test files in building the binary
+    inputFiles.exclude("**/*_test.go")
+    inputFiles.exclude("**/test_*.go")
+
+    inputs.files(inputFiles)
+    outputs.files("build/${version}/vokun")
+
+    doLast {
+        exec {
+            workingDir '.'
+            commandLine "docker", "build",
+                    "--rm",
+                    "-f", "build/Dockerfile",
+                    "--build-arg", "VERSION=${version}",
+                    "-t", "sonaak/vokun-build:${version}", "."
+        }
+        exec {
+            workingDir "."
+            commandLine "docker", "run", "-v", "${workingDir}/build:/go/out",
+                    "sonaak/vokun-build:${version}"
+        }
+    }
 }
 
 /**
- *
+ * Build the docker image that captures the binary
  */
 task image {
     dependsOn = ["binary"]
+    inputs.files(["build/${version}/vokun", "Dockerfile"])
+    outputs.files("build/${version}/docker.out")
+
     doLast {
         exec {
             workingDir "."
@@ -47,6 +68,15 @@ task image {
                     "--build-arg", "VERSION=${version}",
                     "-t", "sonaak/vokun:${version}",
                     "."
+        }
+
+        // write the ID of the docker image to build/${version}/docker.out
+        // and rely on that being the unique image ID
+        exec {
+            standardOutput = new FileOutputStream("build/${version}/docker.out")
+
+            workingDir "."
+            commandLine "docker", "images", "--format", '{{.ID}}', "sonaak/vokun:${version}"
         }
     }
 }
