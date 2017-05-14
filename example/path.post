@@ -1,0 +1,8 @@
+{
+    "headers": {
+        "Content-Type": "json",
+        "Set-Cookie": "abc=123"
+    }
+}
+---
+{"testing":"1-2-3"}

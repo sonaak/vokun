@@ -4,8 +4,14 @@ postgres:
   ports:
   - 5432:5432
 
-morokei-api:
+vokun:
   image: sonaak/vokun:latest
   env_file: ./postgres.envfile
+  command:
+  - "-logtostderr"
+  - "-v"
+  - "2"
   ports:
   - 9000:9000
+  volumes:
+  - ./example/:/opt/sonaak/vokun-api/

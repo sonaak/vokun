@@ -4,7 +4,7 @@
 build() {
     echo "--> Building vokun (version ${VERSION})"
     if [[ ! -d ${VERSION} ]]; then
-        mkdir /go/out/${VERSION}
+        mkdir -p /go/out/${VERSION}
     fi
 
     go install && cp /go/bin/vokun /go/out/${VERSION}/vokun

@@ -5,15 +5,16 @@ import "github.com/evilwire/go-env"
 
 
 type DbConfig struct {
-	Host string `env:"HOST"`
-	Port string `env:"PORT"`
-	User string `env:"USER"`
+	Host string `env:"HOST",json:"host"`
+	Port string `env:"PORT",json:"port"`
+	User string `env:"USER",json:"user"`
 	Password string `env:"PASSWORD"`
 }
 
 
 type Config struct {
-	Db DbConfig `env:"DB_"`
+	Db DbConfig `env:"DB_",json:"db"`
+	Version string `env:"VERSION"`
 }
 
 

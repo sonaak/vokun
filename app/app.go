@@ -74,12 +74,15 @@ func Setup() (*App, error) {
 
 	// setup the app's routers
 	mux.GetFunc("/healthcheck", app.HealthCheck)
+	mux.GetFunc("/api/*", app.Serve)
+	mux.PostFunc("/api/*", app.Serve)
 
 	return app, nil
 }
 
 type Mux interface {
 	GetFunc(string, http.HandlerFunc) *bone.Route
+	PostFunc(string, http.HandlerFunc) *bone.Route
 	http.Handler
 }
 
@@ -113,6 +116,21 @@ func (app *App) HealthCheck(writer http.ResponseWriter, request *http.Request) {
 
 	writer.WriteHeader(200)
 	writer.Write(hcJson)
+}
+
+func (app *App) Serve(writer http.ResponseWriter, request *http.Request) {
+	resp, err := GetResponse(request.RequestURI[5:], request.Method)
+	if err != nil {
+		writer.WriteHeader(500)
+		writer.Write([]byte(fmt.Sprintf("Error: %v", err)))
+		return
+	}
+
+	header := writer.Header()
+	for k, v := range resp.Headers {
+		header.Add(k, v)
+	}
+	writer.Write(resp.Content)
 }
 
 func (app *App) Run() error {

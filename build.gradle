@@ -37,11 +37,16 @@ task binary(type:Exec, dependsOn:[buildImage]) {
 /**
  *
  */
-task image(type:Exec, dependsOn:[binary]) {
-    workingDir '.'
-    commandLine "docker", "build",
-            "--rm",
-            "--build-arg", "VERSION=${version}",
-            "-t", "sonaak/vokun:${version}",
-            "."
+task image {
+    dependsOn = ["binary"]
+    doLast {
+        exec {
+            workingDir "."
+            commandLine "docker", "build",
+                    "--rm",
+                    "--build-arg", "VERSION=${version}",
+                    "-t", "sonaak/vokun:${version}",
+                    "."
+        }
+    }
 }

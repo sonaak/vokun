@@ -16,5 +16,8 @@ RUN chmod +x /opt/sonaak/vokun
 # 9090 is the healthcheck port
 EXPOSE 9000 9090
 
+# Make the path /opt/sonaak/vokun-api/ available
+RUN mkdir -p /opt/sonaak/vokun-api
+
 # Set the entry point
 ENTRYPOINT ["/opt/sonaak/vokun"]
