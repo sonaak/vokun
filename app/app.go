@@ -56,11 +56,12 @@ func Setup() (*App, error) {
 
 	// create a database connection
 	dbConfig := fmt.Sprintf(
-		"host=%s user=%s password=%s dbname=morokei",
+		"host=%s user=%s password=%s dbname=vokun sslmode=disable",
 		config.Db.Host,
 		config.Db.User,
 		config.Db.Password,
 	)
+	glog.Infof("Data base config: %s", dbConfig)
 
 	sqlClient, err := sql.Open("postgres", dbConfig)
 	if err != nil {

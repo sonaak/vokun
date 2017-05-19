@@ -5,7 +5,7 @@ POSTGRES_USER=vokun_admin
 POSTGRES_PASSWORD=^V0kuN_4dM!N$
 POSTGRES_DB=vokun
 
-DB_HOST=postgres
+DB_HOST=vokun_postgres
 DB_PORT=5432
 DB_USER=vokun_admin
 DB_PASSWORD=^V0kuN_4dM!N$

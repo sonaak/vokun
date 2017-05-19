@@ -3,6 +3,7 @@ package app
 import (
 	"time"
 	"sync"
+	"github.com/golang/glog"
 )
 
 type status string
@@ -45,6 +46,9 @@ func (hc *HealthChecker) checkDb(db SqlClient) DbStatus {
 		go func() {
 			startTime := time.Now()
 			pingErr := db.Ping()
+			if pingErr != nil {
+				glog.Errorf("Error pinging db: %v", pingErr)
+			}
 			pingChan <- struct {
 				Err error
 				Duration time.Duration
@@ -70,6 +74,7 @@ func (hc *HealthChecker) checkDb(db SqlClient) DbStatus {
 
 	return DbStatus {
 		Connections: stats.OpenConnections,
+		ErrorRate: errorRate,
 		RoundTrip: connSpeed,
 	}
 }
@@ -77,10 +82,7 @@ func (hc *HealthChecker) checkDb(db SqlClient) DbStatus {
 
 func (hc *HealthChecker) CheckHealth(db SqlClient) HealthCheckStats {
 	// check for a total of 10 times
-	var dbStats DbStatus
-	for i := 0; i < 10; i ++ {
-		dbStats = hc.checkDb(db)
-	}
+	dbStats := hc.checkDb(db)
 
 	return HealthCheckStats {
 		Status: OK,

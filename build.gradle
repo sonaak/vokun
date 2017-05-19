@@ -81,6 +81,16 @@ task image {
     }
 }
 
+task up {
+    dependsOn = ["image"]
+    doLast {
+        exec {
+            workingDir "."
+            commandLine "docker-compose", "up", "-d"
+        }
+    }
+}
+
 /**
  * Starts up a local postgres database and expose the ports
  */

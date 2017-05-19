@@ -5,6 +5,8 @@ vokun:
   - "-logtostderr"
   - "-v"
   - "2"
+  external_links:
+  - vokun_postgres
   ports:
   - 9000:9000
   volumes:
