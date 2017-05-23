@@ -1,16 +1,16 @@
 package app
 
 import (
-	"io/ioutil"
-	"fmt"
-	"strings"
-	"github.com/pkg/errors"
 	"encoding/json"
+	"fmt"
+	"github.com/pkg/errors"
+	"io/ioutil"
+	"strings"
 )
 
 type APIResponse struct {
 	Headers map[string]string `json:"headers"`
-	Code int `json:"status_code"`
+	Code    int               `json:"status_code"`
 	Content []byte
 }
 
@@ -18,7 +18,6 @@ type APIResponseError struct {
 	error
 	Type string
 }
-
 
 func GetResponse(path, verb string) (*APIResponse, error) {
 	filePath := fmt.Sprintf("/opt/sonaak/vokun-api/%s.%s",
@@ -50,6 +49,6 @@ func GetResponse(path, verb string) (*APIResponse, error) {
 		)
 	}
 
-	apiResponse.Content = []byte(fStr[index + 5:])
+	apiResponse.Content = []byte(fStr[index+5:])
 	return apiResponse, nil
 }

@@ -1,46 +1,46 @@
 package app
 
 import (
-	"time"
-	"sync"
 	"github.com/golang/glog"
+	"sync"
+	"time"
 )
 
 type status string
 
 const (
-	OK = "ok"
+	OK    = "ok"
 	ERROR = "error"
 )
 
 type DbStatus struct {
-	Connections int `json:"connections"`
-	RoundTrip float64 `json:"roundtrip"`
-	ErrorRate float64 `json:"error_rate"`
+	Connections int     `json:"connections"`
+	RoundTrip   float64 `json:"roundtrip"`
+	ErrorRate   float64 `json:"error_rate"`
 }
 
 type HealthCheckStats struct {
-	Status status `json:"status"`
-	Db DbStatus `json:"db"`
+	Status status   `json:"status"`
+	Db     DbStatus `json:"db"`
 }
 
-
-type HealthChecker struct {}
-
+type HealthChecker struct{}
 
 func NewHealthChecker() *HealthChecker {
 	return &HealthChecker{}
 }
-
 
 func (hc *HealthChecker) checkDb(db SqlClient) DbStatus {
 	// gather the stats about open connections
 	stats := db.Stats()
 
 	// ping it 10 times and aggregate the results
-	pingChan := make(chan struct { Err error; Duration time.Duration }, 10)
-	wg := sync.WaitGroup {}
-	for i := 0; i < 10; i ++ {
+	pingChan := make(chan struct {
+		Err      error
+		Duration time.Duration
+	}, 10)
+	wg := sync.WaitGroup{}
+	for i := 0; i < 10; i++ {
 		wg.Add(1)
 
 		go func() {
@@ -50,10 +50,10 @@ func (hc *HealthChecker) checkDb(db SqlClient) DbStatus {
 				glog.Errorf("Error pinging db: %v", pingErr)
 			}
 			pingChan <- struct {
-				Err error
+				Err      error
 				Duration time.Duration
 			}{
-				Err: pingErr,
+				Err:      pingErr,
 				Duration: time.Since(startTime),
 			}
 			wg.Done()
@@ -72,20 +72,19 @@ func (hc *HealthChecker) checkDb(db SqlClient) DbStatus {
 		connSpeed += s.Duration.Seconds() * 100
 	}
 
-	return DbStatus {
+	return DbStatus{
 		Connections: stats.OpenConnections,
-		ErrorRate: errorRate,
-		RoundTrip: connSpeed,
+		ErrorRate:   errorRate,
+		RoundTrip:   connSpeed,
 	}
 }
-
 
 func (hc *HealthChecker) CheckHealth(db SqlClient) HealthCheckStats {
 	// check for a total of 10 times
 	dbStats := hc.checkDb(db)
 
-	return HealthCheckStats {
+	return HealthCheckStats{
 		Status: OK,
-		Db: dbStats,
+		Db:     dbStats,
 	}
 }

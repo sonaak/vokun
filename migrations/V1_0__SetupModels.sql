@@ -8,25 +8,9 @@ CREATE TABLE models.request (
   id UUID PRIMARY KEY,
   subpath VARCHAR,
   request_time TIMESTAMP WITHOUT TIME ZONE,
+  headers JSON,
+  query_params JSON,
   body BYTEA
-);
-
--- Headers: objects representing key/val sent with
--- a request in the HTML header
-CREATE TABLE models.header (
-  id UUID PRIMARY KEY,
-  request_id UUID REFERENCES request (id),
-  name VARCHAR,
-  value VARCHAR
-);
-
--- Headers: objects representing key/val sent with
--- a request in the HTML header
-CREATE TABLE models.params (
-  id UUID PRIMARY KEY,
-  request_id UUID REFERENCES request (id),
-  name VARCHAR,
-  value VARCHAR
 );
 
 -- apply grants to the schema and tables
